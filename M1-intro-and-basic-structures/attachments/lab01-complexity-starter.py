@@ -19,7 +19,7 @@
 Если заготовка скопирована в личный репозиторий и каталог с данными не находится
 автоматически, укажите его явно:
 
-    python lab01-complexity-starter.py --variant N --data ~/data-structures-and-algorithms/data/generated
+    python M1-intro-and-basic-structures/attachments/lab01-complexity-starter.py --variant 6 --data data/generated
 """
 from __future__ import annotations
 
@@ -60,31 +60,52 @@ POW_CALLS = 20_000    # вызовов binary_pow на один замер: ин
 
 
 def array_sum(a: list[int]) -> int:
-    """Сумма элементов массива. Ожидаемая сложность: TODO (обосновать в отчёте)."""
-    # TODO: реализовать циклом
-    raise NotImplementedError
+    """Сумма элементов массива. Ожидаемая сложность: O(n)=n."""
+    s = 0
+    for number in a:
+        s += number
+    return s
+    # raise NotImplementedError
 
 
 def array_max(a: list[int]) -> int:
-    """Максимум массива (массив непуст). Ожидаемая сложность: TODO."""
-    # TODO: реализовать циклом
-    raise NotImplementedError
+    """Максимум массива (массив непуст). Ожидаемая сложность: O(n)=n."""
+    m = float('-inf')
+    for number in a:
+        m = number if (m<=number) else m
+    return m
+    # raise NotImplementedError
 
 
 def count_equal_pairs(a: list[int]) -> int:
-    """Число пар (i, j), i < j, таких что a[i] == a[j]. Ожидаемая сложность: TODO."""
-    # TODO: реализовать двойным циклом
-    raise NotImplementedError
+    """Число пар (i, j), i < j, таких что a[i] == a[j]. Ожидаемая сложность: O(n)=n*n."""
+    equals = 0
+    for i in range(len(a)):
+        for j in range(i + 1, len(a)):
+            if a[i] == a[j]:
+                equals += 1
+    return equals
+    # raise NotImplementedError
 
 
 def binary_pow(x: int, n: int, mod: int | None = None) -> int:
-    """Бинарное возведение в степень, n >= 0. Ожидаемая сложность: TODO.
+    """Бинарное возведение в степень, n >= 0. Ожидаемая сложность: O(n)=log2 (n).
 
     При заданном mod все умножения выполняются по модулю (результат x**n % mod).
     """
-    # TODO: реализовать через квадрирование; при mod применять % mod после
+    # реализовать через квадрирование; при mod применять % mod после
     # каждого умножения
-    raise NotImplementedError
+    
+    result = 1
+    base = x % mod if mod else x
+
+    while n > 0:
+        if n & 1:
+            result = (result * base) % mod if mod else (result * base)
+        base = (base * base) % mod if mod else (base * base)
+        n >>= 1
+    return result
+    # raise NotImplementedError
 
 
 # ---------------------------------------------------------------------------
@@ -171,6 +192,30 @@ def self_check() -> None:
 
     # TODO: добавить собственные проверки инвариантов и описать их в отчёте
     # (например: count_equal_pairs на массиве из попарно различных элементов = 0).
+
+    # Инвариант 1 - список разных чисел должен дать 0 пар
+    distinct_arr = list(range(100))
+    assert count_equal_pairs(distinct_arr) == 0
+
+    # Инвариант 2 - список одинаковых элементов должен вернуть количество пар, 
+    # равное произведению длины списка и (длины - 1), разделенному на два
+    uniform_arr = [42] * 50
+    expected_pairs = 50 * 49 // 2
+    assert count_equal_pairs(uniform_arr) == expected_pairs
+
+    # Инвариант 3 - симметрия не должна влиять на результат
+    sym_arr = [1, 2, 3, 2, 1]
+    rev_arr = [1, 2, 3, 2, 1][::-1]
+    assert count_equal_pairs(sym_arr) == count_equal_pairs(rev_arr)
+
+    # Инвариант 4 - binary_pow(x, n, mod) всегда возвращает значение в пределах [0, mod)
+    for _ in range(50):
+        x = rng.randint(0, 1000)
+        n = rng.randint(0, 100)
+        m = rng.randint(2, 1000)
+        res = binary_pow(x, n, mod=m)
+        assert 0 <= res < m
+    
     print("self_check: OK")
 
 
